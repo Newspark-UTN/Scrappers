@@ -8,7 +8,7 @@ var Xray = require('x-ray'),
 var feedUrls = [
     'http://contenidos.lanacion.com.ar/herramientas/rss-origen=2',
     'http://www.clarin.com/rss/lo-ultimo/'
-]
+];
 
 var noticias = [];
 
@@ -50,10 +50,10 @@ var link = "http://www.clarin.com/juegos-olimpicos-rio-2016/Potro-va-final-olimp
 function clarinParser(articulo, callback) {
     x(articulo.link, {
         titulo: '.int-nota-title h1',
-        contenidoNota: '.nota'
+        contenidoNota: ['.nota p']
     })(function (err, obj) {
         if (!err) {
-            articulo.contenidoNota = obj.contenidoNota;
+            articulo.contenidoNota = obj.contenidoNota.join('\n');
             noticias.push(articulo);
         }
         callback()
