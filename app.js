@@ -61,8 +61,13 @@ function clarinParser(articulo, callback) {
         contenidoNota: ['.nota p']
     })(function (err, obj) {
         if (!err) {
-            articulo.contenidoNota = obj.contenidoNota.join('\n');
-            noticias.push(articulo);
+            var a = {};
+            a.content = obj.contenidoNota.join('\n');
+            a.link = articulo.link;
+            a.title = articulo.title;
+            a.source = 'clarin';
+
+            noticias.push(a);
         }
         callback();
     });
@@ -76,8 +81,12 @@ function laNacionParser(articulo, callback) {
         contenidoNota: '#cuerpo'
     })(function (err, obj) {
         if (!err) {
-            articulo.contenidoNota = obj.contenidoNota;
-            noticias.push(articulo);
+            a.content = obj.contenidoNota;
+            a.link = articulo.link;
+            a.title = articulo.title;
+            a.source = 'lanacion';
+
+            noticias.push(a);
         }
         callback();
     });
