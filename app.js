@@ -39,12 +39,12 @@ async.each(feedUrls, function (feedUrl, rssSourceCallback) {
     MongoClient.connect(dbUrl, function (err, db) {
         if (err) {
           console.error(err);
-          return
+          return;
         }
         db.collection('news').insertMany(noticias, function (err, r) {
             if (err) {
               console.error(err);
-              return
+              return;
             }
             db.close();
         });
@@ -64,7 +64,7 @@ function clarinParser(articulo, callback) {
             articulo.contenidoNota = obj.contenidoNota.join('\n');
             noticias.push(articulo);
         }
-        callback()
+        callback();
     });
 
 }
@@ -79,7 +79,7 @@ function laNacionParser(articulo, callback) {
             articulo.contenidoNota = obj.contenidoNota;
             noticias.push(articulo);
         }
-        callback()
+        callback();
     });
 
 }
