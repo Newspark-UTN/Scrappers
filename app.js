@@ -34,10 +34,18 @@ async.each(feedUrls, function (feedUrl, rssSourceCallback) {
     if (err) throw err;
 
     // Connection url
-    var dbUrl = 'mongodb://localhost:27017/newspark';
-    
+    var dbUrl = 'mongodb://mongo.newspark.local:27017/newspark';
+
     MongoClient.connect(dbUrl, function (err, db) {
+        if (err) {
+          console.error(err);
+          return
+        }
         db.collection('news').insertMany(noticias, function (err, r) {
+            if (err) {
+              console.error(err);
+              return
+            }
             db.close();
         });
     });
