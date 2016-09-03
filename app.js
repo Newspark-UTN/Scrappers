@@ -69,6 +69,7 @@ function clarinParser(articulo, callback) {
             a.content = obj.contenidoNota.join('\n');
             a.link = articulo.link;
             a.title = articulo.title;
+            a.tag = articulo.tag;
             a.source = 'clarin';
             console.log(a);
 
