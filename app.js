@@ -6,17 +6,25 @@ var Xray = require('x-ray'),
 
 
 var feedUrls = [
-    'http://contenidos.lanacion.com.ar/herramientas/rss-origen=2',
-    'http://www.clarin.com/rss/lo-ultimo/'
+    ['http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=30', 'politica'],
+    ['http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=272', 'economia'],
+    ['http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=131', 'deportes'],
+    ['http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=120', 'espectaculos'],
+
+    ['http://www.clarin.com/rss/politica/', 'politica'],
+    ['http://www.clarin.com/rss/ieco/', 'economia'],
+    ['http://www.clarin.com/rss/deportes/', 'deportes'],
+    ['http://www.clarin.com/rss/espectaculos/', 'espectaculos'],
 ];
 
 var noticias = [];
 
 async.each(feedUrls, function (feedUrl, rssSourceCallback) {
-    feed(feedUrl, function (err, articles) {
+    feed(feedUrl[0], function (err, articles) {
         if (err) throw err;
-
         async.each(articles, function (article, articleCallback) {
+            article.tag = feedUrl[1];
+
             switch (article.author) {
                 case 'lanacion.com':
                     laNacionParser(article, articleCallback);
@@ -49,11 +57,7 @@ async.each(feedUrls, function (feedUrl, rssSourceCallback) {
             db.close();
         });
     });
-    console.log(noticias);
 });
-
-
-var link = "http://www.clarin.com/juegos-olimpicos-rio-2016/Potro-va-final-olimpica-Nadal_0_1631236947.html";
 
 function clarinParser(articulo, callback) {
     x(articulo.link, {
@@ -66,6 +70,7 @@ function clarinParser(articulo, callback) {
             a.link = articulo.link;
             a.title = articulo.title;
             a.source = 'clarin';
+            console.log(a);
 
             noticias.push(a);
         }
@@ -75,16 +80,18 @@ function clarinParser(articulo, callback) {
 }
 
 function laNacionParser(articulo, callback) {
-    console.log(articulo);
     x(articulo.link, {
         titulo: '.int-nota-title h1',
         contenidoNota: '#cuerpo'
     })(function (err, obj) {
         if (!err) {
+            var a = {};
             a.content = obj.contenidoNota;
             a.link = articulo.link;
             a.title = articulo.title;
+            a.tag = articulo.tag;
             a.source = 'lanacion';
+            console.log(a);
 
             noticias.push(a);
         }
