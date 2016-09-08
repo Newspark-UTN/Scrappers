@@ -1,13 +1,20 @@
 var Xray = require('x-ray'),
+<<<<<<< HEAD
     phantom = require('x-ray-phantom');
     x = Xray()/*.driver(phantom())*/,
     async = require('async'),
     feed = require("feed-read"),
     $ = require("cheerio"),
+=======
+    x = Xray(),
+    async = require('async'),
+    feed = require("feed-read"),
+>>>>>>> 3af29314d2417631560676e3564f566b3b565a4c
     MongoClient = require('mongodb').MongoClient;
 
 var noticias = [];
 var feedUrls = [
+<<<<<<< HEAD
     /*    ['http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=30', 'politica'],
         ['http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=272', 'economia'],
         ['http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=131', 'deportes'],
@@ -51,14 +58,32 @@ var feedUrls = [
 // Connection url
 //var dbUrl = 'mongodb://mongo.newspark.local:27017/newspark';
 var dbUrl = 'mongodb://190.114.222.125:27000/newspark';
+=======
+    ['http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=30', 'politica'],
+    ['http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=272', 'economia'],
+    ['http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=131', 'deportes'],
+    ['http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=120', 'espectaculos'],
+
+    ['http://www.clarin.com/rss/politica/', 'politica'],
+    ['http://www.clarin.com/rss/ieco/', 'economia'],
+    ['http://www.clarin.com/rss/deportes/', 'deportes'],
+    ['http://www.clarin.com/rss/espectaculos/', 'espectaculos'],
+];
+
+// Connection url
+var dbUrl = 'mongodb://mongo.newspark.local:27017/newspark';
+>>>>>>> 3af29314d2417631560676e3564f566b3b565a4c
 
 MongoClient.connect(dbUrl, function (err, db) {
     if (err) throw err;
 
     async.each(feedUrls, function (feedUrl, rssSourceCallback) {
+<<<<<<< HEAD
 
 
 
+=======
+>>>>>>> 3af29314d2417631560676e3564f566b3b565a4c
         feed(feedUrl[0], function (err, articles) {
             if (err) throw err;
             async.each(articles, function (article, articleCallback) {
@@ -71,12 +96,15 @@ MongoClient.connect(dbUrl, function (err, db) {
                     case 'Clarin.com':
                         clarinParser(article, articleCallback);
                         break;
+<<<<<<< HEAD
                     case 'Ambito.com':
                         ambitoParser(article, articleCallback);
                         break;
                     case '':
                         telamParser(article, articleCallback);
                         break;
+=======
+>>>>>>> 3af29314d2417631560676e3564f566b3b565a4c
                 }
 
             }, rssSourceCallback);
@@ -87,6 +115,7 @@ MongoClient.connect(dbUrl, function (err, db) {
         if (err) {
             console.error(err);
         }
+
 
         /*db.collection('news').createIndex( { "link": 1 } , { unique: true } );
 
@@ -105,6 +134,7 @@ MongoClient.connect(dbUrl, function (err, db) {
         db.close();
 
         console.log('DONE!');
+
     });
 
 
@@ -125,6 +155,7 @@ MongoClient.connect(dbUrl, function (err, db) {
         x(articulo.link, {
             titulo: '.int-nota-title h1',
             contenidoNota: ['.nota > p']
+
         })(function (err, obj) {
             if (err) {
                 callback(err);
@@ -141,6 +172,7 @@ MongoClient.connect(dbUrl, function (err, db) {
                 insertArticle(a, callback);
             }
         });
+
     }
 
     function telamParser(articulo, callback) {
@@ -183,6 +215,7 @@ MongoClient.connect(dbUrl, function (err, db) {
                 a.title = articulo.title;
                 a.tag = articulo.tag;
                 a.source = 'ambito';
+
                 console.log(a);
 
                 insertArticle(a, callback);
@@ -190,6 +223,7 @@ MongoClient.connect(dbUrl, function (err, db) {
         });
 
     }
+
 
     function laNacionParser(articulo, callback) {
         x(articulo.link, {
@@ -219,4 +253,5 @@ MongoClient.connect(dbUrl, function (err, db) {
         });
 
     }
+
 });
