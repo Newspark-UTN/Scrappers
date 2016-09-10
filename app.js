@@ -1,21 +1,13 @@
 var Xray = require('x-ray'),
-<<<<<<< HEAD
     phantom = require('x-ray-phantom');
     x = Xray()/*.driver(phantom())*/,
     async = require('async'),
     feed = require("feed-read"),
-    $ = require("cheerio"),
-=======
-    x = Xray(),
-    async = require('async'),
-    feed = require("feed-read"),
->>>>>>> 3af29314d2417631560676e3564f566b3b565a4c
     MongoClient = require('mongodb').MongoClient;
 
 var noticias = [];
 var feedUrls = [
-<<<<<<< HEAD
-    /*    ['http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=30', 'politica'],
+        ['http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=30', 'politica'],
         ['http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=272', 'economia'],
         ['http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=131', 'deportes'],
         ['http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=120', 'espectaculos'],
@@ -29,15 +21,15 @@ var feedUrls = [
         ['http://www.clarin.com/rss/espectaculos/', 'espectaculos'],
         ['http://www.clarin.com/rss/sociedad/','sociedad'], 
         ['http://www.clarin.com/rss/lo-ultimo/', 'ultimasnoticias'],
-        ['http://www.clarin.com/rss/mundo/', 'internacionales'],*/
+        ['http://www.clarin.com/rss/mundo/', 'internacionales'],
 
-    /*   ['http://www.ambito.com/rss/noticias.asp?s=Econom%C3%ADa', 'economia'],
+       ['http://www.ambito.com/rss/noticias.asp?s=Econom%C3%ADa', 'economia'],
        ['http://www.ambito.com/rss/noticias.asp?s=Pol%C3%ADtica', 'politica'],
        ['http://www.ambito.com/rss/noticias.asp?s=Deportes', 'deportes'],
        ['http://www.ambito.com/rss/noticias.asp?s=Espect%C3%A1culos', 'espectaculos'],
        ['http://www.ambito.com/rss/noticiasp.asp', 'ultimasnoticias'],
        ['http://www.ambito.com/rss/noticias.asp?s=Internacionales', 'internacionales'],
-   */
+   /*
     ['http://www.telam.com.ar/rss2/ultimasnoticias.xml', 'ultimasnoticias'],
     ['http://www.telam.com.ar/rss2/politica.xml','politica'],
     ['http://www.telam.com.ar/rss2/sociedad.xml','sociedad'],
@@ -52,38 +44,18 @@ var feedUrls = [
     //['http://m.pagina12.com.ar/diario/suplementos/espectaculos/index.html', 'espectaculos'],
     //['http://m.pagina12.com.ar/diario/sociedad/index.html', 'sociedad']
 
+   */
 
-];
-
-// Connection url
-//var dbUrl = 'mongodb://mongo.newspark.local:27017/newspark';
-var dbUrl = 'mongodb://190.114.222.125:27000/newspark';
-=======
-    ['http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=30', 'politica'],
-    ['http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=272', 'economia'],
-    ['http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=131', 'deportes'],
-    ['http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=120', 'espectaculos'],
-
-    ['http://www.clarin.com/rss/politica/', 'politica'],
-    ['http://www.clarin.com/rss/ieco/', 'economia'],
-    ['http://www.clarin.com/rss/deportes/', 'deportes'],
-    ['http://www.clarin.com/rss/espectaculos/', 'espectaculos'],
 ];
 
 // Connection url
 var dbUrl = 'mongodb://mongo.newspark.local:27017/newspark';
->>>>>>> 3af29314d2417631560676e3564f566b3b565a4c
+//var dbUrl = 'mongodb://190.114.222.125:27000/newspark';
 
 MongoClient.connect(dbUrl, function (err, db) {
     if (err) throw err;
 
     async.each(feedUrls, function (feedUrl, rssSourceCallback) {
-<<<<<<< HEAD
-
-
-
-=======
->>>>>>> 3af29314d2417631560676e3564f566b3b565a4c
         feed(feedUrl[0], function (err, articles) {
             if (err) throw err;
             async.each(articles, function (article, articleCallback) {
@@ -96,15 +68,13 @@ MongoClient.connect(dbUrl, function (err, db) {
                     case 'Clarin.com':
                         clarinParser(article, articleCallback);
                         break;
-<<<<<<< HEAD
                     case 'Ambito.com':
                         ambitoParser(article, articleCallback);
                         break;
                     case '':
-                        telamParser(article, articleCallback);
+                        articleCallback();
+                        //telamParser(article, articleCallback);
                         break;
-=======
->>>>>>> 3af29314d2417631560676e3564f566b3b565a4c
                 }
 
             }, rssSourceCallback);
