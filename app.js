@@ -1,6 +1,5 @@
 var Xray = require('x-ray'),
-    phantom = require('x-ray-phantom');
-x = Xray()/*.driver(phantom())*/,
+    x = Xray(),
     async = require('async'),
     feed = require("feed-read"),
     cheerio = require('cheerio'),
@@ -124,8 +123,8 @@ MongoClient.connect(dbUrl, function (err, db) {
     function clarinParser(articulo, callback) {
         x(articulo.link, {
             titulo: '.int-nota-title h1',
-            contenidoNota: ['.nota > p']
-
+            contenidoNota: ['.nota > p'],
+            imageUrl: '.img-box img@src'
         })(function (err, obj) {
             if (err) {
                 callback(err);
@@ -137,6 +136,7 @@ MongoClient.connect(dbUrl, function (err, db) {
                     a.link = articulo.link;
                     a.title = articulo.title;
                     a.tag = articulo.tag;
+                    a.imageUrl = obj.imageUrl
                     a.source = 'clarin';
                     console.log(a);
 
@@ -152,7 +152,8 @@ MongoClient.connect(dbUrl, function (err, db) {
     function telamParser(articulo, callback) {
         x(articulo.link, {
             titulo: '.int-nota-title h1',
-            contenidoNota: '.editable-content@html'
+            contenidoNota: '.editable-content@html',
+            imageUrl: '.image-left img@src'
         })(function (err, obj) {
             if (err) {
                 callback(err);
@@ -168,6 +169,7 @@ MongoClient.connect(dbUrl, function (err, db) {
                     a.link = articulo.link;
                     a.title = articulo.title;
                     a.tag = articulo.tag;
+                    a.imageUrl = obj.imageUrl
                     a.source = 'telam';
                     console.log(a);
 
@@ -182,7 +184,8 @@ MongoClient.connect(dbUrl, function (err, db) {
     function ambitoParser(articulo, callback) {
         x(articulo.link, {
             titulo: 'header.titulo-noticia h2',
-            contenidoNota: ['.despliegue-noticia > p']
+            contenidoNota: ['.despliegue-noticia > p'],
+            imageUrl: 'picture > img@data-src'
         })(function (err, obj) {
             if (err) {
                 callback(err);
@@ -193,6 +196,7 @@ MongoClient.connect(dbUrl, function (err, db) {
                 a.link = articulo.link;
                 a.title = articulo.title;
                 a.tag = articulo.tag;
+                a.imageUrl = obj.imageUrl.replace(/_[a-z][A-Z]+/, '');
                 a.source = 'ambito';
 
                 console.log(a);
@@ -207,7 +211,8 @@ MongoClient.connect(dbUrl, function (err, db) {
     function laNacionParser(articulo, callback) {
         x(articulo.link, {
             titulo: '.int-nota-title h1',
-            contenidoNota: ['#cuerpo > p']
+            contenidoNota: ['#cuerpo > p'],
+            imageUrl: '.f-imagenRelacionada img@src'
         })(function (err, obj) {
 
             if (err) {
@@ -220,6 +225,7 @@ MongoClient.connect(dbUrl, function (err, db) {
                     a.link = articulo.link;
                     a.title = articulo.title;
                     a.tag = articulo.tag;
+                    a.imageUrl = obj.imageUrl
                     a.source = 'lanacion';
                     console.log(a);
 
