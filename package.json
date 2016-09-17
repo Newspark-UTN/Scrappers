@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "cd test && mocha -t 10000 telam-test.js"
   },
   "author": "",
   "license": "ISC",
@@ -12,6 +12,11 @@
     "async": "^2.0.1",
     "cheerio": "^0.22.0",
     "mongodb": "^2.2.5",
+    "ms": "^0.7.1",
     "x-ray": "^2.3.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.0.2"
   }
 }

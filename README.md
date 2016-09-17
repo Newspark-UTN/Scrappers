@@ -7,3 +7,9 @@ Nota para alan: Ya sé que agregar todo el paquete al repo por un archivo modifi
 
 -npm install
 -node app.js
+
+## Tests
+
+```
+npm test
+```
