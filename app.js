@@ -20,7 +20,7 @@ var feedUrls = [
     ['http://www.clarin.com/rss/deportes/', 'deportes'],
     ['http://www.clarin.com/rss/espectaculos/', 'espectaculos'],
     ['http://www.clarin.com/rss/sociedad/', 'sociedad'],
-    ['http://www.clarin.com/rss/lo-ultimo/', 'ultimasnoticias'],
+    //['http://www.clarin.com/rss/lo-ultimo/', 'ultimasnoticias'],
     ['http://www.clarin.com/rss/mundo/', 'internacionales'],
 
     /* ['http://www.ambito.com/rss/noticias.asp?s=Econom%C3%ADa', 'economia'],
@@ -136,7 +136,7 @@ MongoClient.connect(dbUrl, function (err, db) {
                     a.link = articulo.link;
                     a.title = articulo.title;
                     a.tag = articulo.tag;
-                    a.imageUrl = obj.imageUrl
+                    a.imageUrl = obj.imageUrl || '';
                     a.source = 'clarin';
                     console.log(a);
 
@@ -169,7 +169,7 @@ MongoClient.connect(dbUrl, function (err, db) {
                     a.link = articulo.link;
                     a.title = articulo.title;
                     a.tag = articulo.tag;
-                    a.imageUrl = obj.imageUrl
+                    a.imageUrl = obj.imageUrl || '';
                     a.source = 'telam';
                     console.log(a);
 
@@ -196,7 +196,7 @@ MongoClient.connect(dbUrl, function (err, db) {
                 a.link = articulo.link;
                 a.title = articulo.title;
                 a.tag = articulo.tag;
-                a.imageUrl = obj.imageUrl.replace(/_[a-z][A-Z]+/, '');
+                a.imageUrl = obj.imageUrl.replace(/_[a-z][A-Z]+/, '') || '';
                 a.source = 'ambito';
 
                 console.log(a);
@@ -225,7 +225,7 @@ MongoClient.connect(dbUrl, function (err, db) {
                     a.link = articulo.link;
                     a.title = articulo.title;
                     a.tag = articulo.tag;
-                    a.imageUrl = obj.imageUrl
+                    a.imageUrl = obj.imageUrl || '';
                     a.source = 'lanacion';
                     console.log(a);
 
