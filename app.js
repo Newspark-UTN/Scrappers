@@ -23,12 +23,12 @@ var feedUrls = [
     //['http://www.clarin.com/rss/lo-ultimo/', 'ultimasnoticias'],
     ['http://www.clarin.com/rss/mundo/', 'internacionales'],
 
-    /* ['http://www.ambito.com/rss/noticias.asp?s=Econom%C3%ADa', 'economia'],
+    ['http://www.ambito.com/rss/noticias.asp?s=Econom%C3%ADa', 'economia'],
        ['http://www.ambito.com/rss/noticias.asp?s=Pol%C3%ADtica', 'politica'],
        ['http://www.ambito.com/rss/noticias.asp?s=Deportes', 'deportes'],
        ['http://www.ambito.com/rss/noticias.asp?s=Espect%C3%A1culos', 'espectaculos'],
        ['http://www.ambito.com/rss/noticiasp.asp', 'ultimasnoticias'],
-       ['http://www.ambito.com/rss/noticias.asp?s=Internacionales', 'internacionales'],*/
+       ['http://www.ambito.com/rss/noticias.asp?s=Internacionales', 'internacionales'],
 
     /*  ['http://www.telam.com.ar/rss2/ultimasnoticias.xml', 'ultimasnoticias'],*/
     ['http://www.telam.com.ar/rss2/politica.xml', 'politica'],
@@ -48,15 +48,32 @@ var feedUrls = [
 ];
 
 // Connection url
-var dbUrl = 'mongodb://mongo.newspark.local:27017/newspark';
+var dbUrl = 'mongodb://admin:newspark@ds033036.mlab.com:33036/newspark';
+//var dbUrl = 'mongodb://mongo.newspark.local:27017/newspark';
 //var dbUrl = 'mongodb://190.114.222.125:27000/newspark';
+console.log('starting');
+
+
+//If it is running for more than 5 mins it will exit
+setTimeout(function(){
+    console.error('Run for more than 5 mins');
+    process.exit();
+}, 60 * 5 * 1000);
 
 MongoClient.connect(dbUrl, function (err, db) {
     if (err) throw err;
+    
+    var connection = db;
+
+    console.log('connected')
 
     async.each(feedUrls, function (feedUrl, rssSourceCallback) {
         feed(feedUrl[0], function (err, articles) {
-            if (err) throw err;
+            if (err) {
+                console.error(err)
+             
+                throw err;
+            }
             async.each(articles, function (article, articleCallback) {
                 article.tag = feedUrl[1];
 
@@ -106,18 +123,46 @@ MongoClient.connect(dbUrl, function (err, db) {
 
     });
 
+    function getDbConnection(callback) {
+        if (connection) {
+            callback(null, connection);
+        }
+        else {
+            MongoClient.connect(dbUrl, function(err, db) {
+                if (err) {
+                    console.error(err);
+                    connection = null;
+                    callback(err);
+                }
+
+                connection = db;
+
+                callback(null, connection);
+            });
+        }
+    }
+
 
     function insertArticle(article, callback) {
-        db.collection('news').insert(article, function (err, r) {
-            // Error 11000 es indice duplicado (nosotros tenemos indice por link)
-            if (err && err.code != 11000) {
+        getDbConnection(function(err, db) {
+            if (err) {
                 console.error(err);
+                connection = null;
                 callback(err);
             }
-            else {
-                callback();
-            }
-        });
+
+            db.collection('news').insert(article, function (err, r) {
+                // Error 11000 es indice duplicado (nosotros tenemos indice por link)
+                if (err && err.code != 11000) {
+                    console.error(err);
+                    connection = null;
+                    callback(err);
+                }
+                else {
+                    callback();
+                }
+            });
+        })
     }
 
     function clarinParser(articulo, callback) {
@@ -127,6 +172,7 @@ MongoClient.connect(dbUrl, function (err, db) {
             imageUrl: '.img-box img@src'
         })(function (err, obj) {
             if (err) {
+                console.error(err)
                 callback(err);
             }
             else {
@@ -156,6 +202,7 @@ MongoClient.connect(dbUrl, function (err, db) {
             imageUrl: '.image-left img@src'
         })(function (err, obj) {
             if (err) {
+                console.error(err)
                 callback(err);
             }
             else {
@@ -188,6 +235,7 @@ MongoClient.connect(dbUrl, function (err, db) {
             imageUrl: 'picture > img@data-src'
         })(function (err, obj) {
             if (err) {
+                console.error(err)
                 callback(err);
             }
             else {
@@ -216,6 +264,7 @@ MongoClient.connect(dbUrl, function (err, db) {
         })(function (err, obj) {
 
             if (err) {
+                console.error(err)
                 callback(err);
             }
             else {
