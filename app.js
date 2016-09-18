@@ -22,13 +22,13 @@ var feedUrls = [
     ['http://www.clarin.com/rss/sociedad/', 'sociedad'],
     //['http://www.clarin.com/rss/lo-ultimo/', 'ultimasnoticias'],
     ['http://www.clarin.com/rss/mundo/', 'internacionales'],
-
+/*
     ['http://www.ambito.com/rss/noticias.asp?s=Econom%C3%ADa', 'economia'],
        ['http://www.ambito.com/rss/noticias.asp?s=Pol%C3%ADtica', 'politica'],
        ['http://www.ambito.com/rss/noticias.asp?s=Deportes', 'deportes'],
        ['http://www.ambito.com/rss/noticias.asp?s=Espect%C3%A1culos', 'espectaculos'],
        ['http://www.ambito.com/rss/noticiasp.asp', 'ultimasnoticias'],
-       ['http://www.ambito.com/rss/noticias.asp?s=Internacionales', 'internacionales'],
+       ['http://www.ambito.com/rss/noticias.asp?s=Internacionales', 'internacionales'],*/
 
     /*  ['http://www.telam.com.ar/rss2/ultimasnoticias.xml', 'ultimasnoticias'],*/
     ['http://www.telam.com.ar/rss2/politica.xml', 'politica'],
