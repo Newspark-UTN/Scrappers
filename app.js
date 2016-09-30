@@ -22,21 +22,21 @@ var feedUrls = [
     ['http://www.clarin.com/rss/sociedad/', 'sociedad'],
     //['http://www.clarin.com/rss/lo-ultimo/', 'ultimasnoticias'],
     ['http://www.clarin.com/rss/mundo/', 'internacionales'],
-/*
-    ['http://www.ambito.com/rss/noticias.asp?s=Econom%C3%ADa', 'economia'],
-       ['http://www.ambito.com/rss/noticias.asp?s=Pol%C3%ADtica', 'politica'],
-       ['http://www.ambito.com/rss/noticias.asp?s=Deportes', 'deportes'],
-       ['http://www.ambito.com/rss/noticias.asp?s=Espect%C3%A1culos', 'espectaculos'],
-       ['http://www.ambito.com/rss/noticiasp.asp', 'ultimasnoticias'],
-       ['http://www.ambito.com/rss/noticias.asp?s=Internacionales', 'internacionales'],*/
 
-    /*  ['http://www.telam.com.ar/rss2/ultimasnoticias.xml', 'ultimasnoticias'],*/
+    // ['http://www.telam.com.ar/rss2/ultimasnoticias.xml', 'ultimasnoticias'],
     ['http://www.telam.com.ar/rss2/politica.xml', 'politica'],
     ['http://www.telam.com.ar/rss2/sociedad.xml', 'sociedad'],
     ['http://www.telam.com.ar/rss2/economia.xml', 'economia'],
     ['http://www.telam.com.ar/rss2/deportes.xml', 'deportes'],
     ['http://www.telam.com.ar/rss2/espectaculos.xml', 'espectaculos'],
     ['http://www.telam.com.ar/rss2/mundo.xml', 'internacionales'],
+
+    ['http://www.ambito.com/rss/noticias.asp?s=Econom%C3%ADa', 'economia'],
+    ['http://www.ambito.com/rss/noticias.asp?s=Pol%C3%ADtica', 'politica'],
+    ['http://www.ambito.com/rss/noticias.asp?s=Deportes', 'deportes'],
+    ['http://www.ambito.com/rss/noticias.asp?s=Espect%C3%A1culos', 'espectaculos'],
+    ['http://www.ambito.com/rss/noticiasp.asp', 'ultimasnoticias'],
+    ['http://www.ambito.com/rss/noticias.asp?s=Internacionales', 'internacionales']
 
     /* //['http://m.pagina12.com.ar/diario/economia/index.html','politica'],
      //['http://m.pagina12.com.ar/diario/economia/index.html','economia'],
@@ -234,13 +234,13 @@ MongoClient.connect(dbUrl, function (err, db) {
             contenidoNota: ['.despliegue-noticia > p'],
             imageUrl: 'picture > img@data-src'
         })(function (err, obj) {
-            if (err) {
+            var a = {};
+            a.content = obj.contenidoNota.join('\n ').trim();
+            if (err || a.content.indexOf('setTimeout(') !== -1) {
                 console.error(err)
                 callback(err);
             }
             else {
-                var a = {};
-                a.content = obj.contenidoNota.join('\n ').replace('\t', '').replace('\r', '');
                 a.link = articulo.link;
                 a.title = articulo.title;
                 a.tag = articulo.tag;
