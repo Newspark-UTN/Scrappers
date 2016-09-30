@@ -3,7 +3,16 @@ const Xray = require('x-ray');
 const ms = require('ms');
 const telamScraper = Xray({
 	filters: {
-		fullResolution: (url) => url ? url.replace(/_[0-9]+x[0-9]+/, '') : ''
+		fullResolution: (url) => url ? url.replace(/_[0-9]+x[0-9]+/, '') : '',
+		getThumbnail: (url) => {
+			if (typeof url === 'string') {
+				const videoId = require('url').parse(url).pathname.split('/')[2];
+				console.log(videoId);
+				return `https://i.ytimg.com/vi/${videoId}/sddefault.jpg`;
+			} else {
+				return '';
+			}
+		}
 	}
 }).timeout(ms('5s'));
 
@@ -11,19 +20,19 @@ const telamScraper = Xray({
 const testCases = [
 	{
 		url: 'http://deportes.telam.com.ar/notas/201609/163307-newells-sarmiento-de-junin-diego-osella-primera-division-futbol.html',
-		imageUrl: 'http://www.telam.com.ar/advf/imagenes/2016/08/57c40ed6dd045.jpg'
+		imageUrl: '' // image removed
 	}, {
 		url: 'http://deportes.telam.com.ar/notas/201609/163254-san-lorenzo-velez-futbol-primera-division.html',
-		imageUrl: 'http://www.telam.com.ar/advf/imagenes/2015/11/563fe59a18264.jpg'
+		imageUrl: 'http://www.telam.com.ar/advf/imagenes/2016/09/57dd9ca822d09.jpg'
 	}, {
 		url: 'http://deportes.telam.com.ar/notas/201609/163308-banfield-adosivi-futbol-primera-division-falcioni-quiroz.html',
-		imageUrl: 'http://www.telam.com.ar/advf/imagenes/2015/01/54aed3c42affd.jpg'
+		imageUrl: 'http://www.telam.com.ar/advf/imagenes/2016/09/57ddbeab0ab10.jpg'
 	}, {
 		url: 'http://deportes.telam.com.ar/notas/201609/163310-lanus-union-de-santa-fe-jorge-amiron-leonardo-almiron.html',
-		imageUrl: 'http://www.telam.com.ar/advf/imagenes/2016/09/57dd8cf634ec3.jpg'
+		imageUrl: 'http://www.telam.com.ar/advf/imagenes/2016/09/57dda8eda5e61.jpg'
 	}, {
 		url: 'http://deportes.telam.com.ar/notas/201609/163278-edgardo-bauza-dt-seleccion-argentina-vuelven-gonzalo-higuain-sergio-aguero-eliminatorias.html',
-		imageUrl: 'https://i.ytimg.com/vi/XsQ3M8xjhek/sddefault.jpg' // YouTube thumbnail
+		imageUrl: 'http://www.telam.com.ar/advf/imagenes/2016/09/57dc38f893eeb.jpg'
 	}, {
 		url: 'http://www.telam.com.ar/notas/201609/163395-presupuesto-kicillof.html',
 		imageUrl: '' // No image in article
@@ -35,7 +44,7 @@ const testCases = [
 		imageUrl: 'http://www.telam.com.ar/advf/imagenes/2016/09/57d9243a5e2c4.jpg'
 	}, {
 		url: 'http://deportes.telam.com.ar/notas/201609/163312-independiente-quilmes-futbol-primera-division-copa-sudamericana-gabriel-milito-maximiliano-meza.html',
-		imageUrl: 'http://www.telam.com.ar/advf/imagenes/2016/09/57da759622c29.jpg'
+		imageUrl: 'http://www.telam.com.ar/advf/imagenes/2016/09/57ddc323be50e.jpg'
 	}, {
 		url: 'http://www.telam.com.ar/notas/201609/163282-gilda-natalia-oreiro-cine-salas-pantallas.html',
 		imageUrl: 'http://www.telam.com.ar/advf/imagenes/2016/09/57dc3b11b2657.jpg'
@@ -62,10 +71,11 @@ describe('Telam scraper', () => {
 		describe(test.url, () => {
 			it('returns the correct image', (done) => {
 				telamScraper(test.url, {
-					imagenUrl: '.editable-content .image img@src | fullResolution'
+					imagenUrl: '.editable-content img@src | fullResolution',
+					ytThumbnail: '.video iframe@src | getThumbnail'
 				})(function(err, result) {
 					if (err) { done(err); }
-					assert.equal(result.imagenUrl || '', test.imageUrl);
+					assert.equal(result.imagenUrl || result.ytThumbnail || '', test.imageUrl);
 					done();
 				});
 			});
