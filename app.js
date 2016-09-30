@@ -29,7 +29,7 @@ var feedUrls = [
     ['http://www.telam.com.ar/rss2/economia.xml', 'economia'],
     ['http://www.telam.com.ar/rss2/deportes.xml', 'deportes'],
     ['http://www.telam.com.ar/rss2/espectaculos.xml', 'espectaculos'],
-    ['http://www.telam.com.ar/rss2/mundo.xml', 'internacionales'],
+    ['http://www.telam.com.ar/rss2/internacional.xml', 'internacionales'],
 
     ['http://www.ambito.com/rss/noticias.asp?s=Econom%C3%ADa', 'economia'],
     ['http://www.ambito.com/rss/noticias.asp?s=Pol%C3%ADtica', 'politica'],
@@ -196,13 +196,17 @@ MongoClient.connect(dbUrl, function (err, db) {
     }
 
     function telamParser(articulo, callback) {
+        // HACK: A veces articulo.link es un link relativo, lo arreglamos a mano
+        if (articulo.link && articulo.link[0] === '/') {
+            articulo.link = 'http://www.telam.com.ar' + articulo.link;
+        }
         x(articulo.link, {
-            titulo: '.int-nota-title h1',
-            contenidoNota: '.editable-content@html',
+            titulo: '.title h1',
+            contenidoNota: '.editable-content',
             imageUrl: '.image-left img@src'
         })(function (err, obj) {
             if (err) {
-                console.error(err)
+                console.error(err);
                 callback(err);
             }
             else {
