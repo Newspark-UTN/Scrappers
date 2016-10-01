@@ -54,11 +54,12 @@ var dbUrl = 'mongodb://admin:newspark@ds033036.mlab.com:33036/newspark';
 console.log('starting');
 
 
-//If it is running for more than 5 mins it will exit
+//If it is running for more than a minute and a half it will exit
+//This is horrible... God forgive me.
 setTimeout(function(){
-    console.error('Run for more than 5 mins');
+    console.error('Run for more than a minute and a half mins');
     process.exit();
-}, 60 * 5 * 1000);
+}, 90 * 1000);
 
 MongoClient.connect(dbUrl, function (err, db) {
     if (err) throw err;
