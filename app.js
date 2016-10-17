@@ -63,7 +63,7 @@ setTimeout(function(){
 
 MongoClient.connect(dbUrl, function (err, db) {
     if (err) throw err;
-    
+
     var connection = db;
 
     console.log('connected')
@@ -72,7 +72,7 @@ MongoClient.connect(dbUrl, function (err, db) {
         feed(feedUrl[0], function (err, articles) {
             if (err) {
                 console.error(err)
-             
+
                 throw err;
             }
             async.each(articles, function (article, articleCallback) {
