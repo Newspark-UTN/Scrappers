@@ -185,6 +185,7 @@ MongoClient.connect(dbUrl, function (err, db) {
                     a.tag = articulo.tag;
                     a.imageUrl = obj.imageUrl || '';
                     a.source = 'clarin';
+                    a.scrapeDate = new Date();
                     console.log(a);
 
                     insertArticle(a, callback);
@@ -223,6 +224,7 @@ MongoClient.connect(dbUrl, function (err, db) {
                     a.tag = articulo.tag;
                     a.imageUrl = obj.imageUrl || '';
                     a.source = 'telam';
+                    a.scrapeDate = new Date();
                     console.log(a);
 
                     insertArticle(a, callback);
@@ -252,7 +254,7 @@ MongoClient.connect(dbUrl, function (err, db) {
                 a.tag = articulo.tag;
                 a.imageUrl = obj.imageUrl.replace(/_[a-z][A-Z]+/, '') || '';
                 a.source = 'ambito';
-
+                a.scrapeDate = new Date();
                 console.log(a);
 
                 insertArticle(a, callback);
@@ -282,6 +284,7 @@ MongoClient.connect(dbUrl, function (err, db) {
                     a.tag = articulo.tag;
                     a.imageUrl = obj.imageUrl || '';
                     a.source = 'lanacion';
+                    a.scrapeDate = new Date();
                     console.log(a);
 
                     insertArticle(a, callback);
