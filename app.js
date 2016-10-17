@@ -239,6 +239,7 @@ MongoClient.connect(dbUrl, function (err, db) {
             contenidoNota: ['.despliegue-noticia > p'],
             imageUrl: 'picture > img@data-src'
         })(function (err, obj) {
+            if (err) { return callback(err); }
             var a = {};
             a.content = obj.contenidoNota.join('\n ').trim();
             if (err || a.content.indexOf('setTimeout(') !== -1) {
