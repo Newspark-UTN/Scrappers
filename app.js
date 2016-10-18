@@ -3,7 +3,8 @@ var Xray = require('x-ray'),
     async = require('async'),
     feed = require("feed-read"),
     cheerio = require('cheerio'),
-    MongoClient = require('mongodb').MongoClient;
+    MongoClient = require('mongodb').MongoClient,
+    moment = require('moment');
 
 var noticias = [];
 var feedUrls = [
@@ -166,11 +167,25 @@ MongoClient.connect(dbUrl, function (err, db) {
         })
     }
 
+    function missingDate(link) {
+        console.error(`Could not get date for ${link}`);
+    }
+
+    function ddmmyyyy(str) {
+        if (!str || !str.match(/[0-9]{2}\.[0-9]{2}\.[0-9]{4}/)) {
+            return null;
+        } else {
+            const split = str.split('.').map(parseInt);
+            return new Date(split[2], split[1], split[0]);
+        }
+    }
+
     function clarinParser(articulo, callback) {
         x(articulo.link, {
             titulo: '.int-nota-title h1',
             contenidoNota: ['.nota > p'],
-            imageUrl: '.img-box img@src'
+            imageUrl: '.img-box img@src',
+            isoDate: 'meta[name="cXenseParse:recs:publishtime"] @ content'
         })(function (err, obj) {
             if (err) {
                 console.error(err)
@@ -179,13 +194,16 @@ MongoClient.connect(dbUrl, function (err, db) {
             else {
                 if (obj.contenidoNota.join(' ').split(' ').length > 50) {
                     var a = {};
+                    const now = Date.now();
                     a.content = obj.contenidoNota.join('\n');
                     a.link = articulo.link;
                     a.title = articulo.title;
                     a.tag = articulo.tag;
                     a.imageUrl = obj.imageUrl || '';
                     a.source = 'clarin';
-                    a.scrapeDate = new Date();
+                    a.scrapeDate = now;
+                    if (!obj.isoDate) { missingDate(articulo.link); }
+                    a.articleDate = new Date(articulo.isoDate || now);
                     console.log(a);
 
                     insertArticle(a, callback);
@@ -205,7 +223,8 @@ MongoClient.connect(dbUrl, function (err, db) {
         x(articulo.link, {
             titulo: '.title h1',
             contenidoNota: '.editable-content',
-            imageUrl: '.image-left img@src'
+            imageUrl: '.image-left img@src',
+            ddmmyyyyDate: '.date'
         })(function (err, obj) {
             if (err) {
                 console.error(err);
@@ -224,9 +243,17 @@ MongoClient.connect(dbUrl, function (err, db) {
                     a.tag = articulo.tag;
                     a.imageUrl = obj.imageUrl || '';
                     a.source = 'telam';
-                    a.scrapeDate = new Date();
-                    console.log(a);
 
+                    const now = new Date();
+                    a.scrapeDate = now;
+                    const parsedDate = moment((obj.ddmmyyyyDate || '').split(' ')[0], 'DD/MM/YYYY');
+                    if (!parsedDate.isValid()) {
+                        missingDate(articulo.link);
+                        a.articleDate = now;
+                    } else {
+                        a.articleDate = parsedDate;
+                    }
+                    console.log(a);
                     insertArticle(a, callback);
                 } else {
                     callback();
@@ -239,7 +266,8 @@ MongoClient.connect(dbUrl, function (err, db) {
         x(articulo.link, {
             titulo: 'header.titulo-noticia h2',
             contenidoNota: ['.despliegue-noticia > p'],
-            imageUrl: 'picture > img@data-src'
+            imageUrl: 'picture > img@data-src',
+            dayName_ddmmyyyyDate: '.col-xs-6 > span'
         })(function (err, obj) {
             if (err) { return callback(err); }
             var a = {};
@@ -254,7 +282,16 @@ MongoClient.connect(dbUrl, function (err, db) {
                 a.tag = articulo.tag;
                 a.imageUrl = obj.imageUrl.replace(/_[a-z][A-Z]+/, '') || '';
                 a.source = 'ambito';
-                a.scrapeDate = new Date();
+                const now = new Date();
+                a.scrapeDate = now;
+                const ddmmyyyyDate = (obj.dayName_ddmmyyyyDate || '').split(' ')[1];
+                const parsedDate = ddmmyyyy(ddmmyyyyDate);
+                if (!parsedDate) {
+                    missingDate(articulo.link);
+                    a.articleDate = now;
+                } else {
+                    a.articleDate = now;
+                }
                 console.log(a);
 
                 insertArticle(a, callback);
@@ -268,7 +305,8 @@ MongoClient.connect(dbUrl, function (err, db) {
         x(articulo.link, {
             titulo: '.int-nota-title h1',
             contenidoNota: ['#cuerpo > p'],
-            imageUrl: '.f-imagenRelacionada img@src'
+            imageUrl: '.f-imagenRelacionada img@src',
+            isoDate: 'input[id="nota-fecha"] @ value'
         })(function (err, obj) {
 
             if (err) {
@@ -284,7 +322,13 @@ MongoClient.connect(dbUrl, function (err, db) {
                     a.tag = articulo.tag;
                     a.imageUrl = obj.imageUrl || '';
                     a.source = 'lanacion';
-                    a.scrapeDate = new Date();
+                    const now = new Date();
+                    a.scrapeDate = now;
+                    a.articleDate = new Date(obj.isoDate || now);
+                    if (!a.articleDate) {
+                        missingDate(articulo.link);
+                    }
+
                     console.log(a);
 
                     insertArticle(a, callback);
