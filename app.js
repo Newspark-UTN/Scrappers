@@ -224,7 +224,8 @@ MongoClient.connect(dbUrl, function (err, db) {
             titulo: '.title h1',
             contenidoNota: '.editable-content',
             imageUrl: '.image-left img@src',
-            ddmmyyyyDate: '.date'
+            ddmmyyyyDate: '.data',
+            deportesDate: '.date'
         })(function (err, obj) {
             if (err) {
                 console.error(err);
@@ -246,8 +247,12 @@ MongoClient.connect(dbUrl, function (err, db) {
 
                     const now = new Date();
                     a.scrapeDate = now;
-                    const parsedDate = moment((obj.ddmmyyyyDate || '').split(' ')[0], 'DD/MM/YYYY');
-                    if (!parsedDate.isValid()) {
+                    var parsedDate;
+                    if (typeof obj.ddmmyyyyDate === 'string') {
+                        parsedDate = moment(obj.ddmmyyyyDate.trim().split(' ')[0], 'DD/MM/YYYY');
+                    } else if (typeof obj.deportesDate === 'string') {
+                        parsedDate = moment(obj.deportesDate.trim(), 'DD.MM.YYYY');
+                    } else if (!parsedDate || !parsedDate.isValid()) {
                         missingDate(articulo.link);
                         a.articleDate = now;
                     } else {
