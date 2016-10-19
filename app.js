@@ -270,17 +270,17 @@ MongoClient.connect(dbUrl, function (err, db) {
     function ambitoParser(articulo, callback) {
         x(articulo.link, {
             titulo: 'header.titulo-noticia h2',
-            contenidoNota: ['.despliegue-noticia > p'],
+            contenidoNota: ['.despliegue-noticia > p @html'],
             imageUrl: 'picture > img@data-src',
             dayName_ddmmyyyyDate: '.col-xs-6 > span'
         })(function (err, obj) {
-            if (err) { return callback(err); }
-            var a = {};
-            a.content = obj.contenidoNota.join('\n ').trim();
             if (err || a.content.indexOf('setTimeout(') !== -1) {
                 callback(err || `article ${articulo.link} is loaded dynamically, skipping`);
             }
             else {
+                var a = {};
+                const prettiedText = result.contenidoNota.map(str => str.replace(/<br>/g, '\n')).join('\n').trim()
+                a.content = cheerio.load(prettiedText).text();
                 a.link = articulo.link;
                 a.title = articulo.title;
                 a.tag = articulo.tag;
