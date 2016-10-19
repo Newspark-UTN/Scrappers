@@ -274,12 +274,15 @@ MongoClient.connect(dbUrl, function (err, db) {
             imageUrl: 'picture > img@data-src',
             dayName_ddmmyyyyDate: '.col-xs-6 > span'
         })(function (err, obj) {
-            if (err || a.content.indexOf('setTimeout(') !== -1) {
-                callback(err || `article ${articulo.link} is loaded dynamically, skipping`);
+            if (err) {
+                return callback(err);
             }
             else {
                 var a = {};
                 const prettiedText = result.contenidoNota.map(str => str.replace(/<br>/g, '\n')).join('\n').trim()
+                if (typeof prettiedText === 'string' && prettiedText.indexOf('setTimeout(') !== -1) {
+                    return callback(`article ${articulo.link} is loaded dynamically, skipping`);
+                }
                 a.content = cheerio.load(prettiedText).text();
                 a.link = articulo.link;
                 a.title = articulo.title;
