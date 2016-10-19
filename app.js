@@ -279,7 +279,10 @@ MongoClient.connect(dbUrl, function (err, db) {
             }
             else {
                 var a = {};
-                const prettiedText = articulo.contenidoNota.map(str => str.replace(/<br>/g, '\n')).join('\n').trim()
+                if (!articulo.contenidoNota) {
+                    return callback(`article ${articulo.link} was empty, skipping`);
+                }
+                const prettiedText = articulo.contenidoNota.map(str => str.replace(/<br>/g, '\n')).join('\n').trim();
                 if (typeof prettiedText === 'string' && prettiedText.indexOf('setTimeout(') !== -1) {
                     return callback(`article ${articulo.link} is loaded dynamically, skipping`);
                 }
