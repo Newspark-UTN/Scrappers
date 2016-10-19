@@ -256,7 +256,7 @@ MongoClient.connect(dbUrl, function (err, db) {
                         missingDate(articulo.link);
                         a.articleDate = now;
                     } else {
-                        a.articleDate = parsedDate;
+                        a.articleDate = parsedDate.toDate();
                     }
                     console.log(a);
                     insertArticle(a, callback);
