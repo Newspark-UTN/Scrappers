@@ -222,7 +222,7 @@ MongoClient.connect(dbUrl, function (err, db) {
         }
         x(articulo.link, {
             titulo: '.title h1',
-            contenidoNota: '.editable-content',
+            contenidoNota: '.editable-content @html',
             imageUrl: '.image-left img@src',
             ddmmyyyyDate: '.data',
             deportesDate: '.date'
@@ -237,7 +237,7 @@ MongoClient.connect(dbUrl, function (err, db) {
                 $('script').remove();
                 $('ul').remove();
                 $('blockquote.twitter-tweet').remove();
-                a.content = $.text().replace('\r\n\t\t\t\t\t\t                            ', '').replace('                        \t\t\t\t\t\t\r\n\t\t\t\t', '').replace('\r\n\t\t\t\t\t', '').replace('                        \t\t\t\t\t\t', '').replace('\t', '');
+                a.content = $.text().trim();
                 if (a.content.split(' ').length > 50) {
                     a.link = articulo.link;
                     a.title = articulo.title;
