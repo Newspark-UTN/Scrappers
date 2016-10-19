@@ -194,7 +194,7 @@ MongoClient.connect(dbUrl, function (err, db) {
             else {
                 if (obj.contenidoNota.join(' ').split(' ').length > 50) {
                     var a = {};
-                    const now = Date.now();
+                    const now = new Date();
                     a.content = obj.contenidoNota.join('\n');
                     a.link = articulo.link;
                     a.title = articulo.title;
