@@ -252,7 +252,8 @@ MongoClient.connect(dbUrl, function (err, db) {
                         parsedDate = moment(obj.ddmmyyyyDate.trim().split(' ')[0], 'DD/MM/YYYY');
                     } else if (typeof obj.deportesDate === 'string') {
                         parsedDate = moment(obj.deportesDate.trim(), 'DD.MM.YYYY');
-                    } else if (!parsedDate || !parsedDate.isValid()) {
+                    }
+                    if (!parsedDate || !parsedDate.isValid()) {
                         missingDate(articulo.link);
                         a.articleDate = now;
                     } else {
