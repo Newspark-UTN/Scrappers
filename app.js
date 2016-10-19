@@ -278,8 +278,7 @@ MongoClient.connect(dbUrl, function (err, db) {
             var a = {};
             a.content = obj.contenidoNota.join('\n ').trim();
             if (err || a.content.indexOf('setTimeout(') !== -1) {
-                console.error(err)
-                callback(err);
+                callback(err || `article ${articulo.link} is loaded dynamically, skipping`);
             }
             else {
                 a.link = articulo.link;
