@@ -36,7 +36,7 @@ var feedUrls = [
     ['http://www.ambito.com/rss/noticias.asp?s=Pol%C3%ADtica', 'politica'],
     ['http://www.ambito.com/rss/noticias.asp?s=Deportes', 'deportes'],
     ['http://www.ambito.com/rss/noticias.asp?s=Espect%C3%A1culos', 'espectaculos'],
-    ['http://www.ambito.com/rss/noticiasp.asp', 'ultimasnoticias'],
+    //   ['http://www.ambito.com/rss/noticiasp.asp', 'ultimasnoticias'],
     ['http://www.ambito.com/rss/noticias.asp?s=Internacionales', 'internacionales']
 
     /* //['http://m.pagina12.com.ar/diario/economia/index.html','politica'],
@@ -57,10 +57,10 @@ console.log('starting');
 
 //If it is running for more than a minute and a half it will exit
 //This is horrible... God forgive me.
-setTimeout(function(){
-    console.error('Run for more than a minute and a half mins');
+setTimeout(function () {
+    console.error('Run for more than ten minutes and a half mins');
     process.exit();
-}, 90 * 1000);
+}, 600 * 1000);
 
 MongoClient.connect(dbUrl, function (err, db) {
     if (err) throw err;
@@ -70,34 +70,60 @@ MongoClient.connect(dbUrl, function (err, db) {
     console.log('connected')
 
     async.each(feedUrls, function (feedUrl, rssSourceCallback) {
-        feed(feedUrl[0], function (err, articles) {
-            if (err) {
-                console.error(err)
+        async.waterfall([
+            function (waterfallCallback) {
+                feed(feedUrl[0], function (err, articles) {
 
-                throw err;
-            }
-            async.each(articles, function (article, articleCallback) {
-                article.tag = feedUrl[1];
+                    if (err) {
+                        console.error(`RRS retrive error for link ${feedUrl[0]}`);
+                    }
+                    waterfallCallback(err, articles);
+                });
+            },
+            function (articles, waterfallCallback) {
+                async.eachSeries(articles, function (article, articleCallback) {
+                    article.tag = feedUrl[1];
 
-                switch (article.author) {
-                    case 'lanacion.com':
-                        laNacionParser(article, articleCallback);
-                        break;
-                    case 'Clarin.com':
-                        clarinParser(article, articleCallback);
-                        break;
-                    case 'Ambito.com':
-                        ambitoParser(article, articleCallback);
-                        break;
-                    case '':
-                        //articleCallback();
-                        telamParser(article, articleCallback);
-                        break;
-                }
+                    switch (article.author) {
+                        case 'lanacion.com':
+                            console.log(article.link);
+                            setTimeout(function () {
+                                laNacionParser(article, articleCallback);
+                            }, Math.floor((Math.random() * 1000) + 1));
+                            break;
+                        case 'Clarin.com':
+                            console.log(article.link);
+                            setTimeout(function () {
+                                clarinParser(article, articleCallback);
+                            }, Math.floor((Math.random() * 500) + 1));
 
-            }, rssSourceCallback);
+                            break;
+                        case 'Ambito.com':
+                            console.log(article.link);
 
-        });
+                            ambitoParser(article, articleCallback);
+
+                            break;
+                        case '':
+                        default:
+                            //articleCallback();
+                            console.log(article.link);
+
+                            telamParser(article, articleCallback);
+
+                            break;
+                    }
+
+                }, function (err) {
+                    waterfallCallback(null, '');
+                });
+
+            }],
+            function (err, result) {
+                rssSourceCallback();
+            });
+
+
 
     }, function (err) {
         if (err) {
@@ -106,7 +132,7 @@ MongoClient.connect(dbUrl, function (err, db) {
 
 
         /*db.collection('news').createIndex( { "link": 1 } , { unique: true } );
-
+    
         var bulk = db.collection('news').initializeUnorderedBulkOp();
         for (var i = 0; i < noticias.length; i++) {
             bulk.insert(noticias[i]);
@@ -122,6 +148,7 @@ MongoClient.connect(dbUrl, function (err, db) {
         db.close();
 
         console.log('DONE!');
+        process.exit();
 
     });
 
@@ -130,7 +157,7 @@ MongoClient.connect(dbUrl, function (err, db) {
             callback(null, connection);
         }
         else {
-            MongoClient.connect(dbUrl, function(err, db) {
+            MongoClient.connect(dbUrl, function (err, db) {
                 if (err) {
                     console.error(err);
                     connection = null;
@@ -146,11 +173,11 @@ MongoClient.connect(dbUrl, function (err, db) {
 
 
     function insertArticle(article, callback) {
-        getDbConnection(function(err, db) {
+        getDbConnection(function (err, db) {
             if (err) {
                 console.error(err);
                 connection = null;
-                callback(err);
+                callback();
             }
 
             db.collection('news').insert(article, function (err, r) {
@@ -158,13 +185,13 @@ MongoClient.connect(dbUrl, function (err, db) {
                 if (err && err.code != 11000) {
                     console.error(err);
                     connection = null;
-                    callback(err);
+                    callback();
                 }
                 else {
                     callback();
                 }
             });
-        })
+        });
     }
 
     function missingDate(link) {
@@ -188,13 +215,15 @@ MongoClient.connect(dbUrl, function (err, db) {
             isoDate: 'meta[name="cXenseParse:recs:publishtime"] @ content'
         })(function (err, obj) {
             if (err) {
-                console.error(err)
-                callback(err);
+                console.error(`Could not scrape ${articulo.link} with error: ${err}`);
+                callback();
             }
             else {
                 if (obj.contenidoNota.join(' ').split(' ').length > 50) {
                     var a = {};
                     const now = new Date();
+                    obj.contenidoNota = obj.contenidoNota.filter((data) => data.indexOf('Mirá también'));
+                    obj.contenidoNota = obj.contenidoNota.filter((data) => data.indexOf('Fuente'));
                     a.content = obj.contenidoNota.join('\n');
                     a.link = articulo.link;
                     a.title = articulo.title;
@@ -204,7 +233,7 @@ MongoClient.connect(dbUrl, function (err, db) {
                     a.scrapeDate = now;
                     if (!obj.isoDate) { missingDate(articulo.link); }
                     a.articleDate = new Date(articulo.isoDate || now);
-                    console.log(a);
+
 
                     insertArticle(a, callback);
                 } else {
@@ -228,14 +257,16 @@ MongoClient.connect(dbUrl, function (err, db) {
             deportesDate: '.date'
         })(function (err, obj) {
             if (err) {
-                console.error(err);
-                callback(err);
+                console.error(`Could not scrape`);
+                callback();
             }
             else {
                 var a = {};
                 var $ = cheerio.load(obj.contenidoNota);
                 $('script').remove();
                 $('ul').remove();
+                $('div').remove();
+                $('blockquote').remove();
                 $('blockquote.twitter-tweet').remove();
                 a.content = $.text().trim();
                 if (a.content.split(' ').length > 50) {
@@ -259,7 +290,6 @@ MongoClient.connect(dbUrl, function (err, db) {
                     } else {
                         a.articleDate = parsedDate.toDate();
                     }
-                    console.log(a);
                     insertArticle(a, callback);
                 } else {
                     callback();
@@ -276,20 +306,21 @@ MongoClient.connect(dbUrl, function (err, db) {
             dayName_ddmmyyyyDate: '.col-xs-6 > span'
         })(function (err, obj) {
             if (err) {
-                return callback(err);
+                console.error(`Could not scrape ${articulo.link} with error: ${err}`);
+                return callback();
             }
             else {
                 var a = {};
-                if (!articulo.contenidoNota) {
+                if (!obj.contenidoNota) {
                     return callback(`article ${articulo.link} was empty, skipping`);
                 }
-                const prettiedText = articulo.contenidoNota.map(str => str.replace(/<br>/g, '\n')).join('\n').trim();
+                const prettiedText = obj.contenidoNota.map(str => str.replace(/<br>/g, '\n')).join('\n').trim();
                 if (typeof prettiedText === 'string' && prettiedText.indexOf('setTimeout(') !== -1) {
                     return callback(`article ${articulo.link} is loaded dynamically, skipping`);
                 }
                 a.content = cheerio.load(prettiedText).text();
                 a.link = articulo.link;
-                a.title = articulo.title;
+                a.title = obj.titulo;
                 a.tag = articulo.tag;
                 a.imageUrl = obj.imageUrl.replace(/_[a-z][A-Z]+/, '') || '';
                 a.source = 'ambito';
@@ -303,7 +334,6 @@ MongoClient.connect(dbUrl, function (err, db) {
                 } else {
                     a.articleDate = now;
                 }
-                console.log(a);
 
                 insertArticle(a, callback);
             }
@@ -314,6 +344,7 @@ MongoClient.connect(dbUrl, function (err, db) {
 
     function laNacionParser(articulo, callback) {
         x(articulo.link, {
+            volanta: '.encabezado h2',
             titulo: '.int-nota-title h1',
             contenidoNota: ['#cuerpo > p'],
             imageUrl: '.f-imagenRelacionada img@src',
@@ -321,11 +352,11 @@ MongoClient.connect(dbUrl, function (err, db) {
         })(function (err, obj) {
 
             if (err) {
-                console.error(err)
-                callback(err);
-            }
-            else {
-                if (obj.contenidoNota.join(' ').split(' ').length > 50) {
+                console.error(`Could not scrape ${articulo.link} with error: ${err}`);
+                callback();
+            } else {
+
+                if ((obj.contenidoNota.join(' ').split(' ').length > 50) && (obj.volanta !== 'Break, noticias en 2 minutos') && (obj.volanta !== 'LA NACION pm')) {
                     var a = {};
                     a.content = obj.contenidoNota.join(' \n ');
                     a.link = articulo.link;
@@ -340,7 +371,7 @@ MongoClient.connect(dbUrl, function (err, db) {
                         missingDate(articulo.link);
                     }
 
-                    console.log(a);
+
 
                     insertArticle(a, callback);
                 } else {
